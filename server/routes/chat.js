@@ -21,5 +21,33 @@ router.get('/history', auth, async (req, res) => {
     }
 });
 
+// @route   DELETE api/chat/:id
+// @desc    Delete a specific chat history
+// @access  Private
+router.delete('/:id', auth, async (req, res) => {
+    try {
+        const chat = await Chat.findById(req.params.id);
+
+        if (!chat) {
+            return res.status(404).json({ msg: 'Chat not found' });
+        }
+
+        // Check user ownership
+        if (chat.userId.toString() !== req.user.id) {
+            return res.status(401).json({ msg: 'User not authorized' });
+        }
+
+        await chat.deleteOne();
+
+        res.json({ msg: 'Chat removed' });
+    } catch (err) {
+        console.error(err.message);
+        if (err.kind === 'ObjectId') {
+            return res.status(404).json({ msg: 'Chat not found' });
+        }
+        res.status(500).send('Server Error');
+    }
+});
+
 
 module.exports = router;

@@ -1118,19 +1118,54 @@ button {
 }
 
 .history-item {
-  padding: 0.5rem 0.75rem;
+  padding: 0.75rem 1rem;
   background: transparent;
   border: none;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0.75;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .history-item:hover {
   background: rgba(255, 255, 255, 0.05);
   opacity: 1;
   transform: translateX(4px);
+}
+
+.history-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.delete-history-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  padding: 0.4rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+}
+
+.history-item:hover .delete-history-btn {
+  opacity: 0.6;
+}
+
+.delete-history-btn:hover {
+  opacity: 1 !important;
+  background: rgba(239, 68, 68, 0.1);
+  transform: scale(1.1);
 }
 
 .history-item-title {
@@ -1433,4 +1468,64 @@ button {
   /* color on hover */
   transform: translateY(-5px);
   /* lift effect */
+}
+
+
+
+
+@media (max-width: 992px) {
+  .dashboard-grid {
+    flex-direction: column;
+    align-items: center;   /* center horizontally */
+  }
+
+  .dashboard-card {
+    width: 100%;
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 992px) {
+  .dashboard-grid {
+    flex-direction: column;
+    align-items: center;   /* center horizontally */
+  }
+
+  .dashboard-card {
+    width: 100%;
+    max-width: 600px;
+  }
+}
+@media (max-width: 600px) {
+  .main-content {
+    padding: 1rem 0.5rem;
+  }
+
+  .dashboard-card {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .upload-tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tab-btn {
+    width: 100%;
+  }
+
+  .documents-list {
+    width: 100%;
+  }
+
+  .document-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .doc-action {
+    align-self: flex-end;
+  }
 }

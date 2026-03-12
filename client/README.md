@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Chatbot System
 
-## Getting Started
+## Overview
 
-First, run the development server:
+This project is an **AI-powered chatbot system** designed to interact with users and provide intelligent responses based on a stored knowledge base. The chatbot allows users to ask questions and receive relevant answers through a conversational interface.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The system retrieves information from a **knowledge base stored in the database**, enabling it to provide accurate and context-based responses. Additionally, the system includes an **admin panel** where administrators can upload and manage knowledge base content used by the chatbot.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Interactive chatbot interface for real-time user conversations
+- Intelligent response generation based on stored knowledge
+- Knowledge base retrieval for accurate answers
+- Admin panel for managing chatbot information
+- Ability to upload and update knowledge base documents
+- Scalable backend architecture
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Admin Capabilities
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The system includes an **administrator dashboard** that allows administrators to manage the chatbot knowledge base.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Admin functionalities include:
 
-## Deploy on Vercel
+- Adding new knowledge base content
+- Uploading documents or information for the chatbot
+- Updating existing knowledge entries
+- Managing stored data used by the chatbot
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This allows the chatbot to continuously improve by expanding and updating its knowledge base.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Technologies Used
+
+### Frontend
+- **Next.js**
+
+### Backend
+- **Node.js**
+- **Express.js**
+
+### Database
+- **MongoDB**
+
+These technologies work together to provide a **fast, scalable, and efficient chatbot system**.
+
+---
+
+## System Workflow
+
+1. A user submits a question through the chatbot interface.
+2. The backend receives the request through the API.
+3. The system searches the knowledge base stored in the database.
+4. Relevant information is retrieved.
+5. The chatbot generates a response.
+6. The response is returned to the user.
+
+---
+
+## Applications
+
+This chatbot system can be used in several areas, including:
+
+- Educational assistance
+- Customer support automation
+- Information retrieval systems
+- Knowledge base assistants
+- University information platforms
+
+---
+
+## Future Improvements
+
+Possible enhancements for the system include:
+
+- Adding conversation memory
+- Improving response accuracy
+- Supporting multiple languages
+- Integrating more advanced AI models
+- Enhancing the admin dashboard interface
+
+---
+
+## Author
+
+**Yehwala Obssi**  
+Computer Scienc and Engineering Student  
+
+Developed as a university project demonstrating the design and implementation of an AI-powered chatbot system using **Next.js, Node.js, Express.js, and MongoDB**.

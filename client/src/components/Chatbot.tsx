@@ -74,6 +74,31 @@ export default function Chatbot() {
         setShowHistory(false);
     };
 
+    const handleDeleteChat = async (e: React.MouseEvent, chatId: string) => {
+        e.stopPropagation(); // Prevent loading the chat when deleting
+        if (!confirm('Are you sure you want to delete this chat history?')) return;
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/chat/${chatId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                }
+            });
+
+            if (response.ok) {
+                setChats(prev => prev.filter(chat => chat._id !== chatId));
+                // Optional: reset current messages if deleting the currently viewed chat
+                // However, the simplest behavior is just removing it from history
+            } else {
+                alert('Failed to delete chat history');
+            }
+        } catch (err) {
+            console.error('Delete chat error:', err);
+            alert('An error occurred while deleting');
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim() || isTyping) return;
@@ -254,8 +279,17 @@ export default function Chatbot() {
                             ) : (
                                 chats.map((chat) => (
                                     <div key={chat._id} className="history-item" onClick={() => loadChat(chat)}>
-                                        <div className="history-item-title">{chat.messages[0]?.text || 'New Conversation'}</div>
-                                        <div className="history-item-date">{new Date(chat.updatedAt).toLocaleDateString()}</div>
+                                        <div className="history-item-content">
+                                            <div className="history-item-title">{chat.messages[0]?.text || 'New Conversation'}</div>
+                                            <div className="history-item-date">{new Date(chat.updatedAt).toLocaleDateString()}</div>
+                                        </div>
+                                        <button 
+                                            className="delete-history-btn" 
+                                            onClick={(e) => handleDeleteChat(e, chat._id)}
+                                            title="Delete conversation"
+                                        >
+                                            🗑️
+                                        </button>
                                     </div>
                                 ))
                             )}
