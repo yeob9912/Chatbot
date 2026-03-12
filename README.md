@@ -47,48 +47,7 @@ The project is split into two main components:
 ### Prerequisites
 - Node.js (v18+)
 - MongoDB (Local or Atlas)
-- NPM or Yarn
-
-### Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yeob9912/Chatbot.git
-   cd Chatbot
-   ```
-
-2. **Server Setup**:
-   ```bash
-   cd server
-   npm install
-   # Create a .env file based on the provided environment variables
-   npm run dev
-   ```
-
-3. **Client Setup**:
-   ```bash
-   cd ../client
-   npm install
-   # Create a .env file with NEXT_PUBLIC_API_URL
-   npm run dev
-   ```
-
----
-
-## Project Structure
-
-```text
-Chatbot/
-├── client/           # Next.js frontend
-│   ├── src/app/      # App router pages
-│   ├── src/components/ # Reusable UI components
-│   └── public/       # Static assets
-└── server/           # Express backend
-    ├── controllers/  # Route logic
-    ├── models/       # Mongoose schemas
-    ├── routes/       # API endpoints
-    └── middleware/   # Auth and error handling
-```
+  
 
 ---
 
