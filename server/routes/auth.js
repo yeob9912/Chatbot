@@ -1,10 +1,13 @@
-const express = require('express');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import passport from 'passport';
+
+import User from '../models/User.js';
+import Notification from '../models/Notification.js';
+import auth from '../middleware/auth.js';
+
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const auth = require('../middleware/auth');
-const passport = require('passport');
 
 // @route   GET api/auth/google
 // @desc    Auth with Google
@@ -37,8 +40,6 @@ router.get('/google/callback', (req, res, next) => {
     })(req, res, next);
 });
 
-
-
 // @route   POST api/auth/register
 // @desc    Register user
 // @access  Public
@@ -55,13 +56,24 @@ router.post('/register', async (req, res) => {
         let user = await User.findOne({ email });
         if (user) return res.status(400).json({ msg: 'User already exists' });
 
-
         user = new User({ name: `${firstName} ${lastName}`, email, password });
         await user.save();
 
         const payload = { user: { id: user.id, role: user.role } };
-        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 259200 }, (err, token) => {
+        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 259200 }, async (err, token) => {
             if (err) throw err;
+
+            // Create admin notification
+            try {
+                const notification = new Notification({
+                    message: `👤 New user registered: ${user.name} (${user.email})`,
+                    type: 'signup'
+                });
+                await notification.save();
+            } catch (notifErr) {
+                console.error('Failed to create signup notification:', notifErr);
+            }
+
             res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
         });
     } catch (err) {
@@ -106,4 +118,116 @@ router.get('/user', auth, async (req, res) => {
     }
 });
 
-module.exports = router;
+// @route   GET api/auth/users
+// @desc    Get all registered users (Admin only)
+// @access  Private/Admin
+router.get('/users', auth, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ msg: 'Access denied: Admins only' });
+        }
+        const users = await User.find().select('-password').sort({ name: 1 });
+        res.json(users);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
+    }
+});
+
+// @route   PATCH api/auth/users/:id/role
+// @desc    Change a user's role (Admin only)
+// @access  Private/Admin
+router.patch('/users/:id/role', auth, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ msg: 'Access denied: Admins only' });
+        }
+        if (req.params.id === req.user.id) {
+            return res.status(400).json({ msg: 'You cannot change your own role' });
+        }
+        const { role } = req.body;
+        if (!['user', 'admin'].includes(role)) {
+            return res.status(400).json({ msg: 'Invalid role. Must be "user" or "admin"' });
+        }
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            { role },
+            { new: true }
+        ).select('-password');
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+        res.json(user);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
+    }
+});
+
+// @route   DELETE api/auth/users/:id
+// @desc    Delete a user (Admin only)
+// @access  Private/Admin
+router.delete('/users/:id', auth, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ msg: 'Access denied: Admins only' });
+        }
+        if (req.params.id === req.user.id) {
+            return res.status(400).json({ msg: 'You cannot delete your own account' });
+        }
+        const user = await User.findByIdAndDelete(req.params.id);
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+        res.json({ msg: 'User deleted successfully' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
+    }
+});
+
+// @route   GET api/auth/notifications
+// @desc    Get recent admin notifications (Admin only)
+// @access  Private/Admin
+router.get('/notifications', auth, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ msg: 'Access denied: Admins only' });
+        }
+        const notifications = await Notification.find().sort({ createdAt: -1 }).limit(20);
+        res.json(notifications);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
+    }
+});
+
+// @route   POST api/auth/notifications/read
+// @desc    Mark all admin notifications as read (Admin only)
+// @access  Private/Admin
+router.post('/notifications/read', auth, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ msg: 'Access denied: Admins only' });
+        }
+        await Notification.updateMany({ read: false }, { $set: { read: true } });
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
+    }
+});
+
+// @route   POST api/auth/notifications/:id/read
+// @desc    Mark a single notification as read (Admin only)
+// @access  Private/Admin
+router.post('/notifications/:id/read', auth, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ msg: 'Access denied: Admins only' });
+        }
+        await Notification.findByIdAndUpdate(req.params.id, { $set: { read: true } });
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
+    }
+});
+
+export default router;

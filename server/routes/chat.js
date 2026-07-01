@@ -1,9 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const chatController = require('../controllers/chat');
-const auth = require('../middleware/auth');
+import express from 'express';
+import chatController from '../controllers/chat.js';
+import auth from '../middleware/auth.js';
+import Chat from '../models/Chat.js';
 
-const Chat = require('../models/Chat');
+const router = express.Router();
 
 // POST /api/chat - Send message (RAG + Stream) - Protected Access
 router.post('/', auth, chatController.chat);
@@ -13,7 +13,7 @@ router.post('/', auth, chatController.chat);
 // @access  Private
 router.get('/history', auth, async (req, res) => {
     try {
-        const chats = await Chat.find({ userId: req.user.id }).sort({ updatedAt: -1 });
+        const chats = await Chat.find({ userId: req.user.id, "messages.1": { $exists: true } }).sort({ updatedAt: -1 });
         res.json(chats);
     } catch (err) {
         console.error(err.message);
@@ -49,5 +49,22 @@ router.delete('/:id', auth, async (req, res) => {
     }
 });
 
+// @route   GET api/chat/all
+// @desc    Get all chat logs with user details (Admin only)
+// @access  Private/Admin
+router.get('/all', auth, async (req, res) => {
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ msg: 'Access denied: Admins only' });
+        }
+        const chats = await Chat.find({ "messages.1": { $exists: true } })
+            .populate('userId', 'name email')
+            .sort({ updatedAt: -1 });
+        res.json(chats);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
+    }
+});
 
-module.exports = router;
+export default router;

@@ -1,10 +1,24 @@
-const express = require('express');
-const passport = require('passport');
-const connectDB = require('./config/db');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+import './loadEnv.js';
+import express from 'express';
+import passport from 'passport';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+import connectDB from './config/db.js';
+
+// Setup __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+
+// Import local configuration and routes
+import './config/passport.js';
+import authRoutes from './routes/auth.js';
+import documentRoutes from './routes/documents.js';
+import chatRoutes from './routes/chat.js';
 
 // Add global error handlers
 process.on('uncaughtException', (err) => {
@@ -22,19 +36,18 @@ connectDB();
 
 // Init Passport
 app.use(passport.initialize());
-require('./config/passport');
 
 // Init Middleware
 app.use(cors({
     origin: [
         'http://localhost:3000',
         'http://127.0.0.1:3000',
-        'http://localhost:5173', // Common Vite port just in case
+        'http://localhost:5173',
         'http://127.0.0.1:5173'
     ],
     credentials: true
 }));
-// Use express.json directly with built-in limit
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -51,9 +64,9 @@ app.get('/', (req, res) => {
     });
 });
 
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/documents', require('./routes/documents'));
-app.use('/api/chat', require('./routes/chat'));
+app.use('/api/auth', authRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Catch-all for 404s
 app.use((req, res) => {

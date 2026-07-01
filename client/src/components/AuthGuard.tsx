@@ -23,6 +23,18 @@ export default function AuthGuard({ children, requiredRole }: { children: React.
                 });
 
                 if (response.ok) {
+                    const userData = await response.json();
+                    const targetRole = requiredRole || 'user';
+
+                    if (userData.role === 'admin' && targetRole !== 'admin') {
+                        router.push('/admin');
+                        return;
+                    }
+                    if (targetRole === 'admin' && userData.role !== 'admin') {
+                        router.push('/');
+                        return;
+                    }
+
                     setAuthorized(true);
                 } else {
                     localStorage.removeItem('auth_token');
@@ -37,7 +49,7 @@ export default function AuthGuard({ children, requiredRole }: { children: React.
         };
 
         verifyToken();
-    }, [router]);
+    }, [router, requiredRole]);
 
     if (!authorized) {
         return (
@@ -47,11 +59,8 @@ export default function AuthGuard({ children, requiredRole }: { children: React.
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'var(--background)',
-                gap: '1rem'
             }}>
-                <div className="admin-icon spin" style={{ fontSize: '2rem', color: 'var(--primary)' }}>⚙️</div>
-                <p style={{ opacity: 0.6 }}>Verifying access...</p>
+                <p style={{ opacity: 0.6 }}>Loading...</p>
             </div>
         );
     }

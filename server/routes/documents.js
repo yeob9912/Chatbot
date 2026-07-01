@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import multer from 'multer';
+import auth from '../middleware/auth.js';
+import documentsController from '../controllers/documents.js';
+
 const router = express.Router();
-const auth = require('../middleware/auth');
-const documentsController = require('../controllers/documents');
-const multer = require('multer');
 
 // Multer Config
 const storage = multer.memoryStorage();
@@ -31,4 +32,4 @@ router.post('/text', auth, documentsController.addText);
 router.get('/', auth, documentsController.getDocuments);
 router.delete('/:id', auth, documentsController.deleteDocument);
 
-module.exports = router;
+export default router;

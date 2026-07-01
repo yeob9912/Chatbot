@@ -1,6 +1,7 @@
-const jwt = require('jsonwebtoken');
+import { auth } from "google-auth-library";
+import jwt from "jsonwebtoken";
 
-module.exports = function (req, res, next) {
+const authMiddleware = function (req, res, next) {
     // Get token from header
     const token = req.header('Authorization')?.split(' ')[1] || req.header('x-auth-token');
 
@@ -16,3 +17,6 @@ module.exports = function (req, res, next) {
         res.status(401).json({ msg: 'Token is not valid' });
     }
 };
+
+export { auth };
+export default authMiddleware;

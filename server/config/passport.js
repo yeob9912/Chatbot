@@ -1,6 +1,9 @@
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const User = require('../models/User');
+import '../loadEnv.js';
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import User from '../models/User.js';
+import Notification from '../models/Notification.js';
+
 
 passport.serializeUser((user, done) => {
     done(null, user.id);
@@ -37,24 +40,30 @@ passport.use(new GoogleStrategy({
                 return done(null, user);
             }
 
-            // User not found
-            if (mode === 'signup') {
-                // ALLOW signup with Google
-                user = new User({
-                    name: profile.displayName,
-                    email: profile.emails[0].value,
-                    googleId: profile.id
+            // User not found - automatically sign up the user
+            user = new User({
+                name: profile.displayName,
+                email: profile.emails[0].value,
+                googleId: profile.id
+            });
+            await user.save();
+
+            // Create admin notification
+            try {
+                const notification = new Notification({
+                    message: `👤 New user registered (Google): ${user.name} (${user.email})`,
+                    type: 'signup'
                 });
-                await user.save();
-                return done(null, user);
-            } else {
-                // LOGIN mode - block if not already registered
-                return done(null, false, { msg: 'you are not registred / signup' });
+                await notification.save();
+            } catch (err) {
+                console.error('Failed to save google signup notification:', err);
             }
+
+            return done(null, user);
         } catch (err) {
             console.error(err);
             done(err, null);
         }
     }));
 
-module.exports = passport;
+export default passport;

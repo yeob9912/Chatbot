@@ -19,6 +19,7 @@ export default function Chatbot() {
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [currentChatId, setCurrentChatId] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const toggleChat = () => setIsOpen(!isOpen);
@@ -71,6 +72,15 @@ export default function Chatbot() {
             content: msg.text || msg.content
         }));
         setMessages(historyMessages);
+        setCurrentChatId(chat._id);
+        setShowHistory(false);
+    };
+
+    const startNewChat = () => {
+        setMessages([
+            { id: '1', role: 'bot', content: 'Hello! I am ASTU\'s Helper. How can I assist you today?' }
+        ]);
+        setCurrentChatId(null);
         setShowHistory(false);
     };
 
@@ -119,7 +129,7 @@ export default function Chatbot() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
                 },
-                body: JSON.stringify({ query: userMsg })
+                body: JSON.stringify({ query: userMsg, chatId: currentChatId })
             });
 
             if (!response.ok) throw new Error(`Server error: ${response.status}`);
@@ -152,6 +162,9 @@ export default function Chatbot() {
                         if (data === '[DONE]') continue;
                         try {
                             const parsed = JSON.parse(data);
+                            if (parsed.chatId) {
+                                setCurrentChatId(parsed.chatId);
+                            }
                             if (parsed.text) {
                                 accumulatedContent += parsed.text;
                                 setMessages(prev => prev.map(msg =>
@@ -220,7 +233,25 @@ export default function Chatbot() {
                             <span className="status-dot online"></span>
                         </div>
                     </div>
-                    <div className="header-right">
+                    <div className="header-right" style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                        <button 
+                            onClick={startNewChat}
+                            style={{
+                                background: 'rgba(255, 255, 255, 0.1)',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '6px',
+                                color: 'white',
+                                padding: '4px 10px',
+                                fontSize: '0.75rem',
+                                cursor: 'pointer',
+                                fontWeight: 600,
+                                transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                        >
+                            + New Chat
+                        </button>
                         <button className="history-btn" onClick={toggleHistory}>
                             {showHistory ? 'Back to Chat' : 'Show History'}
                         </button>

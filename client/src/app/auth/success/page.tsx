@@ -15,8 +15,14 @@ function AuthSuccessContent() {
             try {
                 localStorage.setItem('auth_token', token);
                 // Decode URI component for user string
-                localStorage.setItem('user_data', decodeURIComponent(userStr));
-                router.push('/');
+                const decodedUserStr = decodeURIComponent(userStr);
+                localStorage.setItem('user_data', decodedUserStr);
+                const user = JSON.parse(decodedUserStr);
+                if (user && user.role === 'admin') {
+                    router.push('/admin');
+                } else {
+                    router.push('/');
+                }
             } catch (e) {
                 console.error("Error parsing user data", e);
                 router.push('/auth/login?error=OAuthFailed');

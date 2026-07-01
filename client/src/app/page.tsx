@@ -7,7 +7,7 @@ import AuthGuard from "@/components/AuthGuard";
 
 export default function Home() {
   return (
-    <AuthGuard>
+    <AuthGuard requiredRole="user">
       <div className="page">
         <Navbar />
 
@@ -22,11 +22,8 @@ export default function Home() {
                 Get instant answers about campus life, academics, and resources with ASTU&apos;s AI-powered Helper Chatbot.
               </p>
               <div className="hero-actions">
-                <Link href="/admin" className="btn btn-primary">
-                  Go to Admin Panel
-                </Link>
-                <Link href="#features" className="btn btn-secondary">
-                  Learn More
+                <Link href="#features" className="btn btn-primary">
+                  Get Started
                 </Link>
               </div>
             </div>

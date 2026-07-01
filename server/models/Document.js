@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-
+import mongoose from "mongoose";
 const DocumentSchema = new mongoose.Schema({
     filename: String,
     contentType: { type: String, enum: ['pdf', 'txt', 'md', 'url'] },
@@ -10,4 +9,4 @@ const DocumentSchema = new mongoose.Schema({
     size: Number
 });
 
-module.exports = mongoose.model('Document', DocumentSchema);
+export default mongoose.model('Document', DocumentSchema);

@@ -1,13 +1,13 @@
-const Document = require('../models/Document');
-const Chunk = require('../models/Chunk');
-const pdf = require('pdf-parse');
-const cheerio = require('cheerio');
-const { embedText, chunkText } = require('../utils/rag');
+import Document from '../models/Document.js';
+import Chunk from '../models/Chunk.js';
+import pdf from 'pdf-parse';
+import * as cheerio from 'cheerio';
+import { embedText, chunkText } from '../utils/rag.js';
 
 // Use global fetch (Node 18+)
 const nodeFetch = globalThis.fetch;
 
-exports.uploadFile = async (req, res) => {
+export const uploadFile = async (req, res) => {
     try {
         const file = req.file;
         if (!file) return res.status(400).json({ msg: 'No file uploaded' });
@@ -87,7 +87,7 @@ exports.uploadFile = async (req, res) => {
     }
 };
 
-exports.addUrl = async (req, res) => {
+export const addUrl = async (req, res) => {
     const { url } = req.body;
     let newDoc = null; // Declare outside try block
 
@@ -181,11 +181,12 @@ exports.addUrl = async (req, res) => {
     }
 };
 
-exports.addText = async (req, res) => {
+export const addText = async (req, res) => {
     const { title, text, content } = req.body;
     const finalContent = text || content;
+    let newDoc = null;
     try {
-        const newDoc = new Document({
+        newDoc = new Document({
             filename: title,
             contentType: 'txt',
             uploadedBy: req.user.id,
@@ -226,7 +227,7 @@ exports.addText = async (req, res) => {
     }
 };
 
-exports.getDocuments = async (req, res) => {
+export const getDocuments = async (req, res) => {
     try {
         const docs = await Document.find({ uploadedBy: req.user.id }).sort({ uploadDate: -1 });
         res.json(docs);
@@ -236,7 +237,7 @@ exports.getDocuments = async (req, res) => {
     }
 };
 
-exports.deleteDocument = async (req, res) => {
+export const deleteDocument = async (req, res) => {
     try {
         const doc = await Document.findById(req.params.id);
         if (!doc) return res.status(404).json({ msg: 'Document not found' });
@@ -255,4 +256,11 @@ exports.deleteDocument = async (req, res) => {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
+};
+export default {
+    uploadFile,
+    addUrl,
+    addText,
+    getDocuments,
+    deleteDocument
 };

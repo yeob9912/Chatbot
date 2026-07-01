@@ -58,7 +58,11 @@ export default function SignupPage() {
             if (response.ok) {
                 localStorage.setItem('auth_token', data.token);
                 localStorage.setItem('user_data', JSON.stringify(data.user));
-                window.location.href = '/';
+                if (data.user && data.user.role === 'admin') {
+                    window.location.href = '/admin';
+                } else {
+                    window.location.href = '/';
+                }
             } else {
                 setError(data.msg || 'Registration failed');
             }
